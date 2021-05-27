@@ -42,20 +42,31 @@
   </fieldset>
 
   <section id="error-btns">
-    <button>Console Log Demo</button>
-    <button>Console Error Demo</button>
-    <button>Console Dir</button>
-    <button>Console dirxml</button>
-    <button>Console Group Start</button>
-    <button>Console Group End</button>
-    <button>Console Table</button>
-    <button>Start Timer</button>
-    <button>End Timer</button>
-    <button>Console Trace</button>
-    <button>Trigger a Global Error</button>
+    <button id = "log-demo">Console Log Demo</button>
+    <button id = "error-demo">Console Error Demo</button>
+    <button id = "dir">Console Dir</button>
+    <button id = "dirxml">Console dirxml</button>
+    <button id = "group-start">Console Group Start</button>
+    <button id = "group-end">Console Group End</button>
+    <button jd = "table">Console Table</button>
+    <button id = "start-timer">Start Timer</button>
+    <button id = "end-timer">End Timer</button>
+    <button id = "trace">Console Trace</button>
+    <button id = "trigger">Trigger a Global Error</button>
   </section>
-
+  <script src = "https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({
+      token: "9de2fc5e311344d0baa41151b288d4dc"
+    });
+    TrackJS.track("Testing TrackJS");
+
+    class CustomError extends Error{
+      constructor(message){
+        super(message);
+        this.name = "CustomError";
+      }
+    }
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
       let output = document.querySelector('output');
@@ -63,10 +74,100 @@
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
       output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try{
+        if(firstNum == ""){
+          throw new CustomError("first number is null");
+        }
+        else if(secondNum == ""){
+          throw new CustomError("second number is null");
+        }
+      }
+      catch(err){
+        console.error(err);
+      }
+      finally{
+        console.log("Tried to do calculation with null input");
+      }
     });
+    try{
+      console.log(firstNum);
+    }
+    catch(err){
+      console.error(err);
+    }
+    finally{
+      console.log("end of try catch block");
+    }
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+    errorBtns[0].addEventListener('click', () => {
+      console.log("Console Log Demo");
+    });
+
+    errorBtns[1].addEventListener('click', () => {
+      console.error("Console Error Demo");
+    });
+
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(document.head);
+    });
+
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(document.body);
+    });
+
+    const group ='Log Group'
+    errorBtns[4].addEventListener('click', () => {
+      console.group(group);
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.info('end');
+      console.groupEnd();
+    });
+
+
+    function Course(Name, Num) {
+    this.Name = Name;
+    this.Num = Num;
+    }
+    var firstCourse = new Course("Software Engineering", "110");
+    var secondCourse = new Course("Programming Languages", "130");
+    var thirdCourse = new Course("Advanced Software Engineering", "112");
+    errorBtns[6].addEventListener('click', () => {
+      console.table([firstCourse,secondCourse,thirdCourse]);
+    });
+    errorBtns[7].addEventListener('click', () => {
+      console.time();
+      console.log('Timer started');
+    });
+
+    errorBtns[8].addEventListener('click', () => {
+      console.log('Timer ended');
+      console.timeEnd();
+    });
+    const Fifth = () => { Fourth(); };
+    const Fourth = () => { Third(); };
+    const Third = () => { Second(); };
+    const Second = () => { First(); };
+    const First= () => { console.trace(); };
+    errorBtns[9].addEventListener('click', () => {
+      Fifth();
+    }); 
+    errorBtns[10].addEventListener('click', () => {
+      console.log('Sadly an error happened friend');
+      try{
+        boom();
+      }
+      catch(err){
+        console.log(err);
+      }
+    });
+
+    window.onerror = (err) => {
+      console.log("Window error: "+ err);
+    }
   </script>
 </body>
 </html>
